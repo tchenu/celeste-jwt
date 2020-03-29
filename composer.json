@@ -1,0 +1,16 @@
+{
+    "name": "feendy/jwt",
+    "description": "Implementation of RFC 7519 about JSON Web Tokens",
+    "type": "library",
+    "require-dev": {
+        "phpunit/phpunit": "^9.0"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Thibeault Chenu",
+            "email": "contact@tchenu.com"
+        }
+    ],
+    "require": {}
+}
