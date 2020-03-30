@@ -10,9 +10,9 @@ class JWTTest extends TestCase
     {
         $secret = 'abcde';
 
-        $token = JWT::sign($secret, [
+        $token = JWT::encode([
             'demo' => 'demo'
-        ]);
+        ], $secret);
 
         $this->assertIsString($token, 'eyJhbGciOiJzaGEyNTYiLCJ0eXAiOiJKV1QifQ.eyJkZW1vIjoiZGVtbyJ9.d3c5ad706623d03f23b912eaaa0854dc5fd4c3f2158896f79af6e68f402e41c3');
     }
@@ -25,7 +25,7 @@ class JWTTest extends TestCase
             'demo' => 'demo'
         ];
 
-        $token = JWT::sign($secret, $data);
+        $token = JWT::encode($data, $secret);
 
         $decodedData = JWT::decode($token, $secret);
 

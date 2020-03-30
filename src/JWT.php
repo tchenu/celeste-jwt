@@ -3,74 +3,74 @@
 namespace Feendy\JWT;
 
 use Exception;
-use http\Exception\InvalidArgumentException;
+use InvalidArgumentException;
 
 class JWT
 {
-    const SEPARATOR = '.';
-
-    public static $defaultAlgorithm = 'sha256';
 
     /**
      * Build token with given payload
-     * @param string $secret
      * @param array $rawPayload
+     * @param string $secret
      * @return string
      */
-    public static function sign(string $secret, array $rawPayload): string
+    public static function encode(array $rawPayload, string $secret): string
     {
-        if (empty($secret)) {
-            // todo : change message
-            throw new \InvalidArgumentException('Please give me a secret.');
-        }
-
         $rawHeader = [
-            'alg' => static::$defaultAlgorithm,
+            'alg' => 'sha256',
             'typ' => 'JWT'
         ];
 
-        $encodedHeader = static::base64UrlEncode(json_encode($rawHeader));
-        $encodedPayload = static::base64UrlEncode(json_encode($rawPayload));
+        // json_encode + base64Url
+        $encodedHeader = static::rawEncode($rawHeader);
+        $encodedPayload = static::rawEncode($rawPayload);
 
-        $rawToken = $encodedHeader . static::SEPARATOR . $encodedPayload;
+        $signature = hash_hmac($rawHeader['alg'], "{$encodedHeader}.{$encodedPayload}", $secret);
 
-        $signature = hash_hmac($rawHeader['alg'], $rawToken, $secret);
-
-        return $rawToken . static::SEPARATOR . $signature;
+        // token: ${header}.${payload}.${signature}
+        return "{$encodedHeader}.{$encodedPayload}.{$signature}";
     }
 
     /**
      * Decode token and return payload
      * @param string $token
+     * @param string $secret
      * @return array
+     * @throws Exception
+     * @todo : use explode, add more functions
      */
-    public static function decode(string $token, $secret): array
+    public static function decode(string $token, string $secret): array
     {
-        if (empty($secret)) {
-            // todo : change message
-            throw new \InvalidArgumentException('Please give me a secret.');
-        }
-
-        $parts = explode(static::SEPARATOR, $token);
+        $parts = explode('.', $token);
 
         if (count($parts) !== 3) {
-            // todo : change message
-            throw new \InvalidArgumentException('Too many parts');
+            throw new InvalidArgumentException('The token has more than 3 parts.');
         }
 
-        $headers = json_decode(static::base64UrlDecode($parts[0]));
-        $rawContent = $parts[0] . '.' . $parts[1];
+        [$encodedHeaders, $encodedPayload, $signature] = $parts;
 
-        if (hash_hmac($headers->alg, $rawContent, $secret) !== $parts[2]) {
+        $headers = static::rawDecode($encodedHeaders);
+
+        if (hash_hmac($headers->alg, "{$encodedHeaders}.{$encodedPayload}", $secret) !== $signature) {
             throw new Exception('Invalid signature.');
         }
 
-        return (array) json_decode(static::base64UrlDecode($parts[1]));
+        return (array) static::rawDecode($encodedPayload);
+    }
+
+    private static function rawEncode($data)
+    {
+        return static::base64UrlEncode(json_encode($data));
     }
 
     private static function base64UrlEncode($data)
     {
         return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
+    }
+
+    private static function rawDecode($data)
+    {
+        return json_decode(static::base64UrlDecode($data));
     }
 
     private static function base64UrlDecode($data)
