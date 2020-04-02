@@ -14,21 +14,21 @@ class JWTTest extends TestCase
             'demo' => 'demo'
         ], $secret);
 
-        $this->assertIsString($token, 'eyJhbGciOiJzaGEyNTYiLCJ0eXAiOiJKV1QifQ.eyJkZW1vIjoiZGVtbyJ9.d3c5ad706623d03f23b912eaaa0854dc5fd4c3f2158896f79af6e68f402e41c3');
+        $this->assertEquals($token, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkZW1vIjoiZGVtbyJ9.JPnoEfCf31_Ghl7rL6TZqoHFXnQFrfyVsmjNOZCEboE');
     }
 
     public function testDecode()
     {
         $secret = 'abcde';
 
-        $data = [
+        $payload = [
             'demo' => 'demo'
         ];
 
-        $token = JWT::encode($data, $secret);
+        $token = JWT::encode($payload, $secret);
 
-        $decodedData = JWT::decode($token, $secret);
+        $data = JWT::decode($token, $secret, ['HS256']);
 
-        $this->assertEquals($decodedData, $data);
+        $this->assertEquals($data, $payload);
     }
 }
