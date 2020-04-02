@@ -1,5 +1,5 @@
 {
-    "name": "feendy/jwt",
+    "name": "celeste/jwt",
     "description": "Implementation of RFC 7519 about JSON Web Tokens",
     "type": "library",
     "license": "MIT",
@@ -17,7 +17,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Feendy\\JWT\\": "src"
+            "Celeste\\JWT\\": "src"
         }
     }
 }
