@@ -1,6 +1,6 @@
 <?php
 
-namespace Celeste\JWT;
+namespace Feendy\JWT;
 
 use PHPUnit\Framework\TestCase;
 
